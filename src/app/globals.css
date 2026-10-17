@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #11100f;
+  --cream: #f1e7d3;
+  --paper: #f7f0e3;
+  --red: #a94736;
+  --turquoise: #55bfc0;
+  --mustard: #d8a431;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--ink);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--mustard);
+  color: var(--ink);
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.noise {
+  position: relative;
+}
+
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .16;
+  background-image:
+    radial-gradient(rgba(255,255,255,.18) .6px, transparent .6px),
+    radial-gradient(rgba(0,0,0,.13) .7px, transparent .7px);
+  background-position: 0 0, 9px 8px;
+  background-size: 13px 13px, 17px 17px;
+  mix-blend-mode: soft-light;
+}
+
+.section-label {
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-size: .74rem;
+  font-weight: 700;
+}
+
+.display-tight {
+  letter-spacing: -.055em;
+  line-height: .88;
+}
+
+.script-line {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+}
+
+.gallery-stage {
+  --gallery-side-height: 88%;
+}
+
+.gallery-card {
+  transition:
+    transform 600ms cubic-bezier(.22, 1, .36, 1),
+    opacity 600ms cubic-bezier(.22, 1, .36, 1),
+    height 600ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.gallery-reset .gallery-card {
+  transition: none;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-left 40s linear infinite;
+}
+
+.marquee-group {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gallery-stage {
+    --gallery-side-height: 82%;
+  }
+}
+
+.face-button svg {
+  transition: transform .18s ease, filter .18s ease;
+}
+
+.face-button:hover svg,
+.face-button:focus-visible svg {
+  transform: translateY(-4px) scale(1.03);
+  filter: drop-shadow(0 10px 14px rgba(0,0,0,.14));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+
+  .gallery-card {
+    transition: none;
+  }
+
+  .face-button svg {
+    transition: none;
+  }
+}
