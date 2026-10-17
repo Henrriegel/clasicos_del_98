@@ -115,6 +115,27 @@ button {
   }
 }
 
+@supports not (aspect-ratio: 1) {
+  .gallery-spacer {
+    height: 80vw;
+    max-height: 1062px;
+  }
+
+  @media (min-width: 640px) {
+    .gallery-spacer {
+      height: 51vw;
+      max-height: 637px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .gallery-spacer {
+      height: 32.5vw;
+      max-height: 531px;
+    }
+  }
+}
+
 .face-button svg {
   transition: transform .18s ease, filter .18s ease;
 }

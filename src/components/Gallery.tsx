@@ -2,6 +2,7 @@
 
 import Image, { StaticImageData } from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import tools from "@/assets/tools.webp";
 import chair from "@/assets/chair.webp";
 import shopAction from "@/assets/shop-action.webp";
@@ -47,8 +48,54 @@ const gallery: GalleryItem[] = [
 ];
 
 const wrap = (index: number) => (index + gallery.length) % gallery.length;
+const now = () => {
+  try {
+    return typeof performance !== "undefined" && typeof performance.now === "function" ? performance.now() : Date.now();
+  } catch {
+    return Date.now();
+  }
+};
+const reducedMotionQuery = () => {
+  try {
+    return typeof window.matchMedia === "function" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  } catch {
+    return null;
+  }
+};
+const canAnimate = () => typeof window.requestAnimationFrame === "function" && typeof window.cancelAnimationFrame === "function";
 
 export function Gallery() {
+  return (
+    <ClientErrorBoundary fallback={<StaticGallery />}>
+      <InteractiveGallery />
+    </ClientErrorBoundary>
+  );
+}
+
+function StaticGallery() {
+  return (
+    <section id="galeria" className="bg-cream px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10 flex flex-col gap-6 border-b border-ink/15 pb-7 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="section-label text-terracotta">03 · Galería</p>
+            <h2 className="mt-3 font-[var(--font-oswald)] text-5xl font-semibold uppercase tracking-[-.035em] sm:text-6xl">
+              Trabajo real. Local real.
+            </h2>
+          </div>
+          <p className="max-w-sm font-[var(--font-libre)] text-sm leading-7 text-ink/60">
+            Un vistazo al trabajo, al espacio y a los estilos que salen todos los días de Clásicos del 98.
+          </p>
+        </div>
+        <div className="gallery-spacer relative mx-auto aspect-[4/5] w-[64vw] max-w-[850px] overflow-hidden bg-ink sm:aspect-[4/3] sm:w-[68vw] lg:aspect-[16/10] lg:w-[52vw]">
+          <Image src={gallery[0].image} alt={gallery[0].alt} fill sizes="(min-width: 1024px) 52vw, (min-width: 640px) 68vw, 64vw" className="object-cover" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InteractiveGallery() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState<-1 | 0 | 1>(0);
   const [phase, setPhase] = useState<"idle" | "ready" | "moving" | "reset">("idle");
@@ -76,15 +123,23 @@ export function Gallery() {
     setPhase("reset");
     setActiveIndex((index) => wrap(index + step));
     setDirection(0);
-    resetFrame.current = window.requestAnimationFrame(() => {
-      resetFrame.current = window.requestAnimationFrame(() => setPhase("idle"));
-    });
+    if (!canAnimate()) {
+      setPhase("idle");
+      return;
+    }
+    try {
+      resetFrame.current = window.requestAnimationFrame(() => {
+        try { resetFrame.current = window.requestAnimationFrame(() => setPhase("idle")); }
+        catch { setPhase("idle"); }
+      });
+    } catch { setPhase("idle"); }
   }, []);
 
   const move = useCallback((step: -1 | 1, manual = true) => {
     if (animating.current) return;
-    nextAutoAt.current = performance.now() + (manual ? 4000 : 4500);
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    nextAutoAt.current = now() + (manual ? 4000 : 4500);
+    const reducedMotion = reducedMotionQuery();
+    if (!reducedMotion || reducedMotion.matches || !canAnimate()) {
       setActiveIndex((index) => wrap(index + step));
       return;
     }
@@ -92,12 +147,22 @@ export function Gallery() {
     pendingDirection.current = step;
     setDirection(step);
     setPhase("ready");
-    animationFrame.current = window.requestAnimationFrame(() => {
+    try {
       animationFrame.current = window.requestAnimationFrame(() => {
-        setPhase("moving");
-        animationTimer.current = window.setTimeout(finishMove, 750);
+        try {
+          animationFrame.current = window.requestAnimationFrame(() => {
+            setPhase("moving");
+            animationTimer.current = window.setTimeout(finishMove, 750);
+          });
+        } catch { finishMove(); }
       });
-    });
+    } catch {
+      animating.current = false;
+      pendingDirection.current = 0;
+      setDirection(0);
+      setPhase("idle");
+      setActiveIndex((index) => wrap(index + step));
+    }
   }, [finishMove]);
 
   useEffect(() => {
@@ -106,19 +171,23 @@ export function Gallery() {
 
   useEffect(() => () => {
     window.clearTimeout(animationTimer.current);
-    window.cancelAnimationFrame(animationFrame.current);
-    window.cancelAnimationFrame(resetFrame.current);
+    if (typeof window.cancelAnimationFrame === "function") {
+      window.cancelAnimationFrame(animationFrame.current);
+      window.cancelAnimationFrame(resetFrame.current);
+    }
   }, []);
 
   useEffect(() => {
     if (isLightboxOpen) return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const resetTimer = () => { nextAutoAt.current = performance.now() + 4500; };
+    const reducedMotion = reducedMotionQuery();
+    if (!reducedMotion || !canAnimate()) return;
+    const resetTimer = () => { nextAutoAt.current = now() + 4500; };
     resetTimer();
     document.addEventListener("visibilitychange", resetTimer);
-    reducedMotion.addEventListener("change", resetTimer);
+    if (typeof reducedMotion.addEventListener === "function") reducedMotion.addEventListener("change", resetTimer);
+    else if (typeof reducedMotion.addListener === "function") reducedMotion.addListener(resetTimer);
     const timer = window.setInterval(() => {
-      if (!reducedMotion.matches && !document.hidden && !hovered.current && !interacting.current && !focused.current && !animating.current && performance.now() >= nextAutoAt.current) {
+      if (!reducedMotion.matches && document.hidden !== true && document.visibilityState !== "hidden" && !hovered.current && !interacting.current && !focused.current && !animating.current && now() >= nextAutoAt.current) {
         move(1, false);
       }
     }, 250);
@@ -126,7 +195,8 @@ export function Gallery() {
     return () => {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", resetTimer);
-      reducedMotion.removeEventListener("change", resetTimer);
+      if (typeof reducedMotion.removeEventListener === "function") reducedMotion.removeEventListener("change", resetTimer);
+      else if (typeof reducedMotion.removeListener === "function") reducedMotion.removeListener(resetTimer);
     };
   }, [isLightboxOpen, move]);
 
@@ -187,14 +257,17 @@ export function Gallery() {
           onPointerLeave={(event) => {
             if (event.pointerType === "mouse") {
               hovered.current = false;
-              nextAutoAt.current = performance.now() + 4000;
+              nextAutoAt.current = now() + 4000;
             }
           }}
-          onFocus={(event) => { focused.current = event.target.matches(":focus-visible"); }}
+          onFocus={(event) => {
+            try { focused.current = event.target.matches(":focus-visible"); }
+            catch { focused.current = true; }
+          }}
           onBlur={(event) => {
             if (!event.currentTarget.contains(event.relatedTarget)) {
               focused.current = false;
-              nextAutoAt.current = performance.now() + 4000;
+              nextAutoAt.current = now() + 4000;
             }
           }}
         >
@@ -209,13 +282,15 @@ export function Gallery() {
             onPointerMove={(event) => {
               if (interacting.current && Math.hypot(event.clientX - startX.current, event.clientY - startY.current) > 8 && !moved.current) {
                 moved.current = true;
-                if (event.pointerType === "mouse") event.currentTarget.setPointerCapture(event.pointerId);
+                if (event.pointerType === "mouse" && typeof event.currentTarget.setPointerCapture === "function") {
+                  try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* Drag still works without capture. */ }
+                }
               }
             }}
             onPointerLeave={(event) => {
               if (event.pointerType === "mouse" && interacting.current && !moved.current) {
                 interacting.current = false;
-                nextAutoAt.current = performance.now() + 4000;
+                nextAutoAt.current = now() + 4000;
               }
             }}
             onPointerUp={(event) => {
@@ -226,16 +301,16 @@ export function Gallery() {
                 moved.current = true;
                 move(distance < 0 ? 1 : -1);
               } else {
-                nextAutoAt.current = performance.now() + 4000;
+                nextAutoAt.current = now() + 4000;
               }
             }}
             onPointerCancel={() => {
               interacting.current = false;
               moved.current = true;
-              nextAutoAt.current = performance.now() + 4000;
+              nextAutoAt.current = now() + 4000;
             }}
           >
-            <div aria-hidden="true" className="aspect-[4/5] w-[64vw] max-w-[850px] sm:aspect-[4/3] sm:w-[68vw] lg:aspect-[16/10] lg:w-[52vw]" />
+            <div aria-hidden="true" className="gallery-spacer aspect-[4/5] w-[64vw] max-w-[850px] sm:aspect-[4/3] sm:w-[68vw] lg:aspect-[16/10] lg:w-[52vw]" />
             {slots.map(({ index, offset }) => {
               const item = gallery[index];
               const visualPosition = phase === "moving" ? offset - direction : offset;
