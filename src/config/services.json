@@ -1,0 +1,26 @@
+[
+  {
+    "id": "corte-clasico",
+    "title": "Corte clásico",
+    "copy": "Tijera, máquina y detalle. Un corte pensado para que se vea bien hoy y siga cayendo bien después.",
+    "image": null
+  },
+  {
+    "id": "barba-perfilado",
+    "title": "Barba y perfilado",
+    "copy": "Líneas limpias, volumen controlado y acabado de barbería sin quitarle carácter a tu barba.",
+    "image": null
+  },
+  {
+    "id": "diseno-estilo",
+    "title": "Diseño y estilo",
+    "copy": "Degradados, texturas y estilos actuales trabajados con criterio, no con una receta idéntica para todos.",
+    "image": null
+  },
+  {
+    "id": "corte-nino",
+    "title": "Corte para niño",
+    "copy": "Paciencia, técnica y un ambiente relajado para que la visita a la barbería sea parte de la rutina, no un problema.",
+    "image": null
+  }
+]

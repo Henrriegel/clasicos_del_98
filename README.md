@@ -6,7 +6,7 @@ Sitio estático construido con:
 - TypeScript
 - Tailwind CSS
 - Static Export
-- GitHub Pages + GitHub Actions
+- Cloudflare Pages
 
 ## Qué incluye
 
@@ -20,7 +20,6 @@ Sitio estático construido con:
 - 5 niveles de valoración.
 - 1–4 abren WhatsApp con un mensaje de retroalimentación.
 - 5 abre, por ahora, la página de Facebook.
-- Workflow listo para desplegar en GitHub Pages.
 
 ## Ejecutar localmente
 
@@ -59,36 +58,9 @@ Ahí están:
 
 Cuando tengas la URL final de Google Reviews, cambia `publicReviewUrl`.
 
-## GitHub Pages
+## Cloudflare Pages
 
-1. Crea un repositorio.
-2. Sube este proyecto a la rama `main`.
-3. En GitHub entra a `Settings > Pages`.
-4. En `Build and deployment`, selecciona **GitHub Actions**.
-5. Haz push a `main`.
-
-El workflow `.github/workflows/deploy-pages.yml` genera `out/` y lo publica.
-
-### Repositorio de proyecto
-
-Si el sitio queda como:
-
-```text
-https://usuario.github.io/nombre-repo/
-```
-
-el `basePath` se detecta automáticamente durante GitHub Actions.
-
-### Dominio propio
-
-Si más adelante usas un dominio propio en la raíz, define en el workflow:
-
-```yaml
-env:
-  NEXT_PUBLIC_BASE_PATH: ""
-```
-
-antes del build y configura el dominio en GitHub Pages.
+Conecta el repositorio de GitHub a Cloudflare Pages. Usa `npm run build` como comando de build y `out/` como directorio de salida. El sitio se sirve desde `/`.
 
 ## NFC
 
@@ -96,12 +68,6 @@ Para pruebas, la tarjeta debe apuntar directamente a:
 
 ```text
 https://TU-DOMINIO/valorar/
-```
-
-o mientras uses la URL de GitHub:
-
-```text
-https://TU-USUARIO.github.io/TU-REPOSITORIO/valorar/
 ```
 
 ## Imágenes

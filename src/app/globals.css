@@ -87,6 +87,17 @@ button {
   transition: none;
 }
 
+.service-card {
+  transition:
+    transform 550ms cubic-bezier(.22, 1, .36, 1),
+    opacity 550ms cubic-bezier(.22, 1, .36, 1),
+    box-shadow 550ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.service-reset .service-card {
+  transition: none;
+}
+
 .marquee-track {
   display: flex;
   width: max-content;
@@ -156,6 +167,10 @@ button {
   }
 
   .gallery-card {
+    transition: none;
+  }
+
+  .service-card {
     transition: none;
   }
 

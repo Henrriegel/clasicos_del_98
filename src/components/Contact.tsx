@@ -6,30 +6,23 @@ export function Contact() {
   return (
     <section id="contacto" className="bg-ink px-4 py-20 text-cream sm:px-6 sm:py-28 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
-        <div className="flex flex-col overflow-hidden rounded-[28px] border border-white/10 bg-coal p-3 sm:p-4">
+        <div className="flex flex-col overflow-hidden rounded-[28px] border border-white/10 bg-coal p-3 sm:p-4 lg:self-center">
           <Image
             src={logoMexico}
             alt="Peluquería y Barbería Clásicos del 98, gráfico neón con colores de México"
             className="h-auto w-full rounded-[20px]"
             sizes="(min-width: 1024px) 40vw, 95vw"
           />
-          <div className="mt-5 flex flex-1 flex-col justify-between gap-6 border-t border-white/10 px-2 pb-2 pt-5 sm:px-3 sm:pb-3">
-            <div>
-              <p className="font-[var(--font-oswald)] text-3xl font-semibold uppercase tracking-[-.025em]">{site.name}</p>
-              <p className="mt-1 font-[var(--font-libre)] text-sm leading-6 text-cream/65">Cortes, barbería y buena plática en Querétaro.</p>
-            </div>
-            <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-4 font-[var(--font-libre)] text-xs text-cream/75">
-              <span><span className="text-mustard">{site.hours[0][0]}</span> · {site.hours[0][1]}</span>
-              <span><span className="text-mustard">{site.hours[1][0]}</span> · {site.hours[1][1]}</span>
-              <span>WhatsApp · {site.phoneDisplay}</span>
-            </div>
+          <div className="mt-5 border-t border-white/10 px-2 pb-2 pt-5 sm:px-3 sm:pb-3">
+            <p className="font-[var(--font-oswald)] text-3xl font-semibold uppercase tracking-[-.025em]">{site.name}</p>
+            <p className="mt-1 font-[var(--font-libre)] text-sm leading-6 text-cream/65">Cortes, barbería y buena plática en Querétaro.</p>
           </div>
         </div>
 
         <div className="flex flex-col justify-center">
           <p className="section-label text-mustard">05 · Contacto</p>
           <h2 className="mt-4 font-[var(--font-oswald)] text-5xl font-semibold uppercase leading-[.95] tracking-[-.035em] sm:text-6xl">
-            Química #42. Ahí nos vemos.
+            Nos vemos en Clásicos del 98.
           </h2>
 
           <div className="mt-9 divide-y divide-white/15 border-y border-white/15">
